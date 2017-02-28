@@ -20,5 +20,8 @@ if [ ! -z "$HS_HIDE_HELP" ]; then
 	exit 0
 fi
 
-browser-sync start --port "${PORT:-5000}" --proxy "http://localhost:$((${PORT:-5000}+1))" --files 'public' & \
+browser-sync start \
+	--port "${PORT:-5000}" \
+	--proxy "http://localhost:$((${PORT:-5000}+1))" \
+	--files 'public' & \
 harp server --port "$((${PORT:-5000}+1))"

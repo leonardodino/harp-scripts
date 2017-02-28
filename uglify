@@ -21,7 +21,24 @@ if [ ! -z "$HS_HIDE_HELP" ]; then
 	exit 0
 fi
 
-files="$(cat public/_layout.jade | grep './scripts' | grep -v '.min.js' | tr -d '[:blank:]' | tr -d "'" | tr -d ')' | sed 's/script(src=//' | sed 's|^/|./public/|')"
+get-files(){
+	cat public/_layout.jade | \
+	grep './scripts' | \
+	grep -v '.min.js' | \
+	tr -d '[:blank:]' | \
+	tr -d "'" | tr -d ')' | \
+	sed 's/script(src=//' | \
+	sed 's|^/|./public/|'
+}
+
+get-config(){
+	printf '%s%s%s\n' \
+		'properties,dead_code,drop_debugger,unsafe,unsafe_comps,' \
+		'conditionals,comparisons,evaluate,booleans,loops,unused,' \
+		'if_return,join_vars,negate_iife,pure_getters'
+}
+
+files="$(get-files)"
 
 echo 'compresing:' 1>&2
 echo "${files}" 1>&2
@@ -29,6 +46,6 @@ echo "${files}" 1>&2
 uglifyjs \
 $files \
 --screw-ie8 \
--c properties,dead_code,drop_debugger,unsafe,unsafe_comps,conditionals,comparisons,evaluate,booleans,loops,unused,if_return,join_vars,negate_iife,pure_getters \
+-c "$(get-config)" \
 -m \
 --passes 10 \

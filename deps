@@ -34,13 +34,18 @@ help({
 	hide: true,
 })
 
+const usuportedFiletype = filename => new InputError([
+	`Can't list dependencies.`,
+	`File with unsuported filetype: <${filename}>.`,
+].join('\n'))
+
 const deps = filename => (
 	new Promise((resolve, reject) => (
 		filetype(filename).then(filetype => {
 			const listDeps = FILETYPES[filetype]
 			listDeps
 				? resolve(listDeps(filename))
-				: reject(new InputError(`Can't list dependencies.\nFile with unsuported filetype: <${filename}>.`))
+				: reject(usuportedFiletype(filename))
 		}).catch(reject)
 	))
 )

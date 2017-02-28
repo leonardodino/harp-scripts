@@ -35,8 +35,8 @@ const ident = (whitespace, content) => content
 
 const inline = (regexp, current, dependencies) => {
 	return current.replace(regexp, (match, whitespace, file) => {
-		const includeName = castToName(file)
-		const dependency = dependencies.find(({name})=> name === includeName)
+		const _name = castToName(file)
+		const dependency = dependencies.find(({name})=> name === _name)
 
 		if(!dependency){
 			throw new Error(`Missing required dependency: ${includeName}`)
@@ -49,10 +49,21 @@ const inline = (regexp, current, dependencies) => {
 const recurse = (regexp, current, dependencies) => {
 	const next = inline(regexp, current, dependencies)
 
-	return (next === current) ? current : recurse(regexp, next, dependencies)
+	return next === current
+		? current
+		: recurse(regexp, next, dependencies)
 }
 
-const toFile = file => ({file, name: castToName(file), content: read(file)})
+const toFile = file => ({
+	file,
+	name: castToName(file),
+	content: read(file)
+})
+
+const usuportedFiletype = filename => new InputError([
+	`Can't merge file dependencies.`,
+	`File with unsuported filetype: <${filename}>.`
+].join('\n'))
 
 
 const merge = filename => (
@@ -60,9 +71,10 @@ const merge = filename => (
 		filetype(filename).then(filetype => {
 			deps(filename).then(deps => {
 				const regexp = REGEXPS[filetype]
+				const dependencies = deps.map(toFile)
 				regexp
-					? resolve(recurse(regexp, read(filename), deps.map(toFile)))
-					: reject(new InputError(`Can't merge file dependencies.\nFile with unsuported filetype: <${filename}>.`))
+					? resolve(recurse(regexp, read(filename), dependencies))
+					: reject(usuportedFiletype(filename))
 			}).catch(reject)
 		}).catch(reject)
 	))

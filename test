@@ -19,5 +19,6 @@ if [ ! -z "$HS_HIDE_HELP" ]; then
 	exit 0
 fi
 
+FOLDER_PREFIX="$(cat package.json | json name).harp-scripts-test"
 NODE_ENV="${HS_NODE_ENV:-production}" \
-harp compile -o "$(mktemp -dt "$(cat package.json | json name).harp-scripts-test")"
+harp compile -o "$(mktemp -dt "$FOLDER_PREFIX")"

@@ -70,23 +70,34 @@ generalhelp(){
 	local pkgname="$(echo "$pkg" | json name)"
 	local pkgversion="$(echo "$pkg" | json version)"
 	local pkgdescription="$(echo "$pkg" | json description)"
-	local helptitle="${bold}${pkgname}${normal} - ${pkgdescription} ${grey}(v${pkgversion})${normal}"
 	local showall="$(expr "$input" = '--all' '|' "$input" = '-a')"
 
 	echo ''
-	echo "$helptitle"
+	printf '%s - %s %s \n' \
+		"${bold}${pkgname}${normal}" \
+		"${pkgdescription}" \
+		"${grey}(v${pkgversion})${normal}"
 	echo ''
 	echo "${grey}Usage:${normal}"
 	echo "$main [command] [argument]" | sed 's|^|  |'
 	echo ''
 	echo "${grey}Commands:${normal}"
-	find "$localdir" -maxdepth 1 -type f -perm -111 ! -name "$main" | xargs -n 1 -I@ bash -c "hs-show-short-help @ $showall"  | column  -s § -t;
+	find "$localdir" -maxdepth 1 -type f -perm -111 ! -name "$main" \
+		| xargs -n 1 -I@ bash -c "hs-show-short-help @ $showall" \
+		| column  -s § -t;
 	echo ''
-	echo "${grey}Run ${normal}${bold}$main help [command]${normal}${grey} for more information on a command.${normal}"
+	printf '%s%s%s\n' \
+		"${grey}Run ${normal}" \
+		"${bold}$main help [command]${normal}" \
+		"${grey} for more information on a command.${normal}\n"
 	echo ''
 
 	if [ ! -z "$input" ] && [ "$showall" != '1' ]; then
-		echo "${bold}InputError:${normal} Command <${bold}${input}${normal}> not found!" 1>&2
+		printf '%s %s %s %s' \
+			"${bold}InputError:${normal}" \
+			"Command" \
+			"<${bold}${input}${normal}>" \
+			"not found!" 1>&2
 		echo ''
 		exit 1
 	fi
@@ -109,7 +120,10 @@ commandhelp(){
 
 	if [ ! -z "$usage" ]; then
 		echo ''
-		echo "$usage" | sed "/{COMMAND}/ s/^/${grey}Usage:${normal} /g" | sed '/{COMMAND}/! s/^/  /g' | sed "s|{COMMAND}|$main $input|g"
+		echo "$usage" \
+			| sed "/{COMMAND}/ s/^/${grey}Usage:${normal} /g" \
+			| sed '/{COMMAND}/! s/^/  /g' \
+			| sed "s|{COMMAND}|$main $input|g"
 	fi
 
 	if [ ! -z "$variables" ]; then

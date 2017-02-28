@@ -22,16 +22,25 @@ help({
 	hide: true,
 })
 
+const missingArgument = () => new InputError(
+	'Missing required argument: filename.'
+)
+
+const unrecognized = ext => new InputError([
+	`Can't find filetype.`,
+	`Unrecognized file extension: <${ext}>.`,
+].join('\n'))
+
 const filetype = filename => (
 	new Promise((resolve, reject) => {
-		!filename && reject(new InputError('Missing required argument: filename.'))
+		!filename && reject(missingArgument())
 
 		const ext = extname(filename) || ''
 		const filetype = EXTENSIONS[ext]
 
 		filetype
 			? resolve(filetype)
-			: reject(new InputError(`Can't find filetype. Unsuported file extension: <${ext}>.`))
+			: reject(unrecognized(ext))
 	})
 )
 

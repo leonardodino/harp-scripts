@@ -46,8 +46,11 @@ harp-scripts(){
 		shift;
 		"$0" 'help' "$@"
 	else
-		[ -z "${1}" ] && echo "InputError: Missing required argument: script name." 1>&2
-		[ -z "${1}" ] || echo "InputError: unknown script <${1}>" 1>&2;
+		[ -z "${1}" ] && \
+			echo "InputError: Missing required argument: script name." 1>&2
+		[ -z "${1}" ] || \
+			echo "InputError: unknown script <${1}>" 1>&2;
+
 		echo "InputError: Run '${0} --help' to see available commands." 1>&2
 		exit 1;
 	fi
