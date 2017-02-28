@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+if [ ! -z "$HS_SHORT_HELP" ]; then
+	echo 'run production server'
+	exit 0
+fi
+
+if [ ! -z "$HS_USAGE_HELP" ]; then
+	echo '{COMMAND}'
+	echo "serve project's assets via a http server"
+	echo 'for live-reloading see `harp-scripts watch`'
+	exit 0
+fi
+
+if [ ! -z "$HS_VARIABLES_HELP" ]; then
+	echo 'PORT: specify port to listen on'
+	echo 'HS_NODE_ENV: specify NODE_ENV for the server'
+	exit 0
+fi
+
+if [ ! -z "$HS_HIDE_HELP" ]; then
+	exit 0
+fi
+
+NODE_ENV="${HS_NODE_ENV:-production}" \
+harp server --port "${PORT:-5000}"

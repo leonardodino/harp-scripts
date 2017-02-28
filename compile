@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+if [ ! -z "$HS_SHORT_HELP" ]; then
+	echo 'compile harp project'
+	exit 0
+fi
+
+if [ ! -z "$HS_USAGE_HELP" ]; then
+	echo '{COMMAND} [path]'
+	echo "compile all project's files to a static website"
+	echo 'use the argument to set a custom output folder'
+	echo '[path] defaults to ./www/'
+	echo 'WARNING: the folder will be overwritten'
+	exit 0
+fi
+
+if [ ! -z "$HS_VARIABLES_HELP" ]; then
+	echo 'HS_NODE_ENV: specify NODE_ENV during compilation'
+	exit 0
+fi
+
+if [ ! -z "$HS_HIDE_HELP" ]; then
+	exit 0
+fi
+
+
+NODE_ENV="${HS_NODE_ENV:-production}" harp compile "$1"

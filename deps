@@ -1,0 +1,48 @@
+#!/usr/bin/env node
+
+const fs = require('fs')
+const stylus = require('stylus')
+const progeny = require('progeny')()
+const filetype = require('./filetype')
+const InputError = require('./lib/InputError')
+const pcb = require('./lib/pcb')
+const cli = require('./lib/cli')(require.main === module)
+const help = require('./lib/help')(require.main === module)
+
+const FILETYPES = {
+	jade: filename => (
+		new Promise((resolve, reject) => (
+			progeny(filename, pcb(resolve, reject))
+		))
+	),
+	stylus: filename => (
+		new Promise((resolve, reject) => (
+			fs.readFile(filename, 'utf8', pcb(resolve, reject))
+		))
+		.then(str => stylus(str, {filename}).deps())
+	),
+}
+
+help({
+	short: 'list dependencies of a file',
+	usage: [
+		'{COMMAND} <path_to_file>',
+		'',
+		'outputs file dependencies to STDOUT',
+		`supported filetypes: [${Object.keys(FILETYPES).join(', ')}]`,
+	],
+	hide: true,
+})
+
+const deps = filename => (
+	new Promise((resolve, reject) => (
+		filetype(filename).then(filetype => {
+			const listDeps = FILETYPES[filetype]
+			listDeps
+				? resolve(listDeps(filename))
+				: reject(new InputError(`Can't list dependencies.\nFile with unsuported filetype: <${filename}>.`))
+		}).catch(reject)
+	))
+)
+
+module.exports = cli(deps)

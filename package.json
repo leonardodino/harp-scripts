@@ -1,0 +1,31 @@
+{
+  "name": "harp-scripts",
+  "version": "0.0.1",
+  "description": "front-end development automation",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": "harp-scripts",
+  "keywords": [
+    "harp",
+    "unix",
+    "jade",
+    "stylus",
+    "uglify",
+    "bash",
+    "surge"
+  ],
+  "author": "Leonardo Dino <leonardo@kunstdesign.com.br>",
+  "license": "ISC",
+  "peerDependencies": {
+    "harp": "0.x"
+  },
+  "dependencies": {
+    "browser-sync": "^2.18.8",
+    "json": "^9.0.4",
+    "progeny": "^0.11.0",
+    "stylus": "^0.54.5",
+    "surge": "^0.18.0",
+    "uglify-js": "^2.7.5"
+  }
+}

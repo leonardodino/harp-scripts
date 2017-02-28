@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+if [ ! -z "$HS_SHORT_HELP" ]; then
+	echo 'show the help section for command'
+	exit 0
+fi
+
+if [ ! -z "$HS_USAGE_HELP" ]; then
+	echo '{COMMAND}'
+	echo 'show overview entry for harp-scripts'
+	echo ''
+	echo '{COMMAND} [command]'
+	echo 'show detailed help entry for command'
+	exit 0
+fi
+
+if [ ! -z "$HS_VARIABLES_HELP" ]; then
+	exit 0
+fi
+
+if [ ! -z "$HS_HIDE_HELP" ]; then
+	exit 0
+fi
+
+if [ -t 1 ]; then
+	ncolors=$(tput colors)
+	if [ -n "$ncolors" ] && [ $ncolors -ge 9 ]; then
+		bold="$(tput bold)"
+		underline="$(tput smul)"
+		normal="$(tput sgr0)"
+		red="$(tput setaf 1)"
+		green="$(tput setaf 2)"
+		yellow="$(tput setaf 3)"
+		grey="$(tput setaf 8)"
+	fi
+fi
+
+get-local-dir(){
+	# http://stackoverflow.com/a/246128
+	SOURCE="${BASH_SOURCE[0]}"
+	while [ -h "$SOURCE" ]; do
+		DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+		SOURCE="$(readlink "$SOURCE")"
+		[[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+	done
+
+	echo "$(cd -P "$( dirname "$SOURCE" )" && pwd)"
+}
+
+hs-show-short-help(){
+	local showall="$2"
+	local cmdhide="$(HS_HIDE_HELP='true' "$1")"
+
+	if [ ! "$cmdhide" = 'true' ] || [ "$showall" = '1' ]; then
+		local cmdname="$(basename "$1")"
+		local cmdhelp="$(HS_SHORT_HELP='true' "$1")"
+		echo "$cmdname § $cmdhelp" | sed 's|^|  |'
+	fi
+}
+
+export -f hs-show-short-help
+
+generalhelp(){
+	local localdir="$1"
+	local input="$2"
+
+	local pkg="$(cat "${localdir}/package.json")";
+	local main="$(echo "$pkg" | json bin)";
+	local pkgname="$(echo "$pkg" | json name)"
+	local pkgversion="$(echo "$pkg" | json version)"
+	local pkgdescription="$(echo "$pkg" | json description)"
+	local helptitle="${bold}${pkgname}${normal} - ${pkgdescription} ${grey}(v${pkgversion})${normal}"
+	local showall="$(expr "$input" = '--all' '|' "$input" = '-a')"
+
+	echo ''
+	echo "$helptitle"
+	echo ''
+	echo "${grey}Usage:${normal}"
+	echo "$main [command] [argument]" | sed 's|^|  |'
+	echo ''
+	echo "${grey}Commands:${normal}"
+	find "$localdir" -maxdepth 1 -type f -perm -111 ! -name "$main" | xargs -n 1 -I@ bash -c "hs-show-short-help @ $showall"  | column  -s § -t;
+	echo ''
+	echo "${grey}Run ${normal}${bold}$main help [command]${normal}${grey} for more information on a command.${normal}"
+	echo ''
+
+	if [ ! -z "$input" ] && [ "$showall" != '1' ]; then
+		echo "${bold}InputError:${normal} Command <${bold}${input}${normal}> not found!" 1>&2
+		echo ''
+		exit 1
+	fi
+}
+
+commandhelp(){
+	local localdir="$1"
+	local input="$2"
+
+	local script="${localdir}/${input}";
+	local pkg="$(cat "${localdir}/package.json")";
+	local main="$(echo "$pkg" | json bin)";
+
+	local short="$(HS_SHORT_HELP='true' "$script")"
+	local usage="$(HS_USAGE_HELP='true' "$script")"
+	local variables="$(HS_VARIABLES_HELP='true' "$script")"
+
+	echo ''
+	echo "${bold}$input:${normal} ${short}"
+
+	if [ ! -z "$usage" ]; then
+		echo ''
+		echo "$usage" | sed "/{COMMAND}/ s/^/${grey}Usage:${normal} /g" | sed '/{COMMAND}/! s/^/  /g' | sed "s|{COMMAND}|$main $input|g"
+	fi
+
+	if [ ! -z "$variables" ]; then
+		echo ''
+		echo "${grey}Variables:${normal}"
+		echo "$variables" | column -s : -t | sed 's|^|  |'
+	fi
+
+	echo ''
+}
+
+help(){
+	local localdir="$(get-local-dir)";
+	local input="${1}";
+	local script="${localdir}/${input}";
+
+	if [ -x "$script" ] && [ -f "$script" ]; then
+		commandhelp "$localdir" "$input" 
+	else
+		generalhelp "$localdir" "$input"
+	fi
+}
+
+if [ -t 1 ]; then
+	help "$@" | sed 's|^|  |'
+else
+	help "$@"
+fi

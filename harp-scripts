@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+if [ ! -z "$HS_SHORT_HELP" ]; then
+	echo 'script runner'
+	exit 0
+fi
+
+if [ ! -z "$HS_USAGE_HELP" ]; then
+	echo '{COMMAND} help'
+	echo 'see help'
+	exit 0
+fi
+
+if [ ! -z "$HS_VARIABLES_HELP" ]; then
+	exit 0
+fi
+
+if [ ! -z "$HS_HIDE_HELP" ]; then
+	echo 'true'
+	exit 0
+fi
+
+get-local-dir(){
+	# http://stackoverflow.com/a/246128
+	SOURCE="${BASH_SOURCE[0]}"
+	while [ -h "$SOURCE" ]; do
+		DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+		SOURCE="$(readlink "$SOURCE")"
+		[[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+	done
+
+	echo "$(cd -P "$( dirname "$SOURCE" )" && pwd)"
+}
+
+harp-scripts(){
+	local localdir="$(get-local-dir)"
+	local input="${1}"
+	local script="${localdir}/${input}";
+	local localbin="${localdir}/node_modules/.bin:${localdir}/../.bin"
+
+	if [ -x "$script" ] && [ -f "$script" ]; then
+		shift;
+		PATH="${localbin}:${PATH}" "$script" "$@";
+	elif [ "$input" = '-h' ] || [ "$input" = '--help' ]; then
+		shift;
+		"$0" 'help' "$@"
+	else
+		[ -z "${1}" ] && echo "InputError: Missing required argument: script name." 1>&2
+		[ -z "${1}" ] || echo "InputError: unknown script <${1}>" 1>&2;
+		echo "InputError: Run '${0} --help' to see available commands." 1>&2
+		exit 1;
+	fi
+}
+
+harp-scripts "$@"

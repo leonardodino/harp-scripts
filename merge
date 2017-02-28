@@ -1,0 +1,71 @@
+#!/usr/bin/env node
+
+const fs = require('fs')
+const deps = require('./deps')
+const filetype = require('./filetype')
+const cli = require('./lib/cli')(require.main === module)
+const help = require('./lib/help')(require.main === module)
+
+
+const REGEXPS = {
+	jade: (/^(\s*)include\s+(.*)$/mg), //doesn't supports extends
+	stylus: (/^(\s*)(?:@import|@require)\s*['"]?([^'"]+)['"]?$/mg),
+}
+
+help({
+	short: 'inline all file dependencies',
+	usage: [
+		'{COMMAND} <path_to_source_file>',
+		'outputs a single dependency-less file to STDOUT',
+		`supported filetypes: [${Object.keys(REGEXPS).join(', ')}]`,
+	],
+})
+
+const read = file => fs.readFileSync(file, 'utf8')
+
+const castToName = file => file
+	.replace(/.(?:jade|pug|styl)$/, '')
+	.replace(/\/(?:index)?$/, '')
+	.split('/')
+	.reverse()[0]
+
+const ident = (whitespace, content) => content
+	.replace(/^/mg, (whitespace||'').replace(/\\n/g, ''))
+
+
+const inline = (regexp, current, dependencies) => {
+	return current.replace(regexp, (match, whitespace, file) => {
+		const includeName = castToName(file)
+		const dependency = dependencies.find(({name})=> name === includeName)
+
+		if(!dependency){
+			throw new Error(`Missing required dependency: ${includeName}`)
+		}
+
+		return ident(whitespace, dependency.content)
+	})
+}
+
+const recurse = (regexp, current, dependencies) => {
+	const next = inline(regexp, current, dependencies)
+
+	return (next === current) ? current : recurse(regexp, next, dependencies)
+}
+
+const toFile = file => ({file, name: castToName(file), content: read(file)})
+
+
+const merge = filename => (
+	new Promise((resolve, reject) => (
+		filetype(filename).then(filetype => {
+			deps(filename).then(deps => {
+				const regexp = REGEXPS[filetype]
+				regexp
+					? resolve(recurse(regexp, read(filename), deps.map(toFile)))
+					: reject(new InputError(`Can't merge file dependencies.\nFile with unsuported filetype: <${filename}>.`))
+			}).catch(reject)
+		}).catch(reject)
+	))
+)
+
+module.exports = cli(merge)

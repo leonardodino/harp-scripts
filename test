@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+if [ ! -z "$HS_SHORT_HELP" ]; then
+	echo 'test your project harp compilation'
+	exit 0
+fi
+
+if [ ! -z "$HS_USAGE_HELP" ]; then
+	exit 0
+fi
+
+if [ ! -z "$HS_VARIABLES_HELP" ]; then
+	echo 'HS_NODE_ENV: specify NODE_ENV during test'
+	exit 0
+fi
+
+if [ ! -z "$HS_HIDE_HELP" ]; then
+	exit 0
+fi
+
+NODE_ENV="${HS_NODE_ENV:-production}" \
+harp compile -o "$(mktemp -dt "$(cat package.json | json name).harp-scripts-test")"

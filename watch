@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+if [ ! -z "$HS_SHORT_HELP" ]; then
+	echo 'run a development server with browser-sync'
+	exit 0
+fi
+
+if [ ! -z "$HS_USAGE_HELP" ]; then
+	echo '{COMMAND}'
+	exit 0
+fi
+
+if [ ! -z "$HS_VARIABLES_HELP" ]; then
+	echo 'PORT: specify port to listen on'
+	exit 0
+fi
+
+if [ ! -z "$HS_HIDE_HELP" ]; then
+	exit 0
+fi
+
+browser-sync start --port "${PORT:-5000}" --proxy "http://localhost:$((${PORT:-5000}+1))" --files 'public' & \
+harp server --port "$((${PORT:-5000}+1))"

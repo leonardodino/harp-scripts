@@ -1,0 +1,38 @@
+#!/usr/bin/env node
+
+const { extname } = require('path')
+const InputError = require('./lib/InputError')
+const cli = require('./lib/cli')(require.main === module)
+const help = require('./lib/help')(require.main === module)
+
+const EXTENSIONS = {
+	'.jade': 'jade',
+	'.pug': 'jade',
+	'.styl': 'stylus',
+}
+
+help({
+	short: 'define filetype based on filename',
+	usage: [
+		'{COMMAND} <filename_or_path>',
+		'',
+		'outputs the associated filetype to STDOUT',
+		`supported filetypes: [${Object.keys(EXTENSIONS).join(', ')}]`,
+	],
+	hide: true,
+})
+
+const filetype = filename => (
+	new Promise((resolve, reject) => {
+		!filename && reject(new InputError('Missing required argument: filename.'))
+
+		const ext = extname(filename) || ''
+		const filetype = EXTENSIONS[ext]
+
+		filetype
+			? resolve(filetype)
+			: reject(new InputError(`Can't find filetype. Unsuported file extension: <${ext}>.`))
+	})
+)
+
+module.exports = cli(filetype)
