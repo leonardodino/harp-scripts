@@ -7,9 +7,13 @@ if [ ! -z "$HS_SHORT_HELP" ]; then
 fi
 
 if [ ! -z "$HS_USAGE_HELP" ]; then
-	echo '{COMMAND}'
-	echo 'outputs joined file to STDOUT'
-	echo 'automatically finds script files'
+	echo '{COMMAND} jade_file'
+	echo 'find script files from tags with data-uglify=true'
+	echo 'and outputs joined file to STDOUT'
+	echo 'local urls must be absolute!'
+	echo ''
+	echo '{COMMAND} js_file [js_file...]'
+	echo 'concatenate & minify files to STDOUT'
 	exit 0
 fi
 
@@ -21,13 +25,12 @@ if [ ! -z "$HS_HIDE_HELP" ]; then
 	exit 0
 fi
 
-get-files(){
-	cat public/_layout.jade | \
-	grep './scripts' | \
-	grep -v '.min.js' | \
-	tr -d '[:blank:]' | \
-	tr -d "'" | tr -d ')' | \
-	sed 's/script(src=//' | \
+get-files-jade(){
+	cat "$1" | \
+	grep 'script' | \
+	sed -n "/data-uglify=['\"]true['\"]/p" | \
+	awk -F '=' '/src/ {print $2}' | \
+	awk -F "[\"']" '{print $(NF-1)}' | \
 	sed 's|^/|./public/|'
 }
 
@@ -38,14 +41,25 @@ get-config(){
 		'if_return,join_vars,negate_iife,pure_getters'
 }
 
-files="$(get-files)"
+uglify(){
+	local input="$1"
+	[ -z "$input" ] && echo 'InputError: Missing required argument: filename.' 1>&2 && exit 1
+	local filetype="$("$(dirname "$0")/filetype" "$input" 2> /dev/null || false)"
+	local files
 
-echo 'compresing:' 1>&2
-echo "${files}" 1>&2
+	if [ "$filetype" = 'jade' ]; then
+		files="$(get-files-jade "$input")"
+	else
+		files="$(printf '%s\n' "$@")"
+	fi
 
-uglifyjs \
-$files \
---screw-ie8 \
--c "$(get-config)" \
--m \
---passes 10 \
+	echo 'Uglify:' 1>&2
+	echo "${files}" | nl -nrz -s': ' -w2 1>&2
+
+	uglifyjs $files \
+	--screw-ie8 \
+	-c "$(get-config)" \
+	-m --passes 10
+}
+
+uglify "$@"
