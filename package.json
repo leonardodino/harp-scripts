@@ -16,10 +16,12 @@
     "surge"
   ],
   "author": "Leonardo Dino <leonardo@kunstdesign.com.br>",
-  "license": "ISC",
+  "license": "(ISC OR MIT)",
   "peerDependencies": {
     "harp": "0.x"
   },
+  "repository": "leonardodino/harp-scripts",
+  "bugs": "https://github.com/leonardodino/harp-scripts/issues",
   "dependencies": {
     "browser-sync": "^2.18.8",
     "json": "^9.0.4",
