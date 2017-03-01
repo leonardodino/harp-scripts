@@ -89,7 +89,7 @@ generalhelp(){
 	printf '%s%s%s\n' \
 		"${grey}Run ${normal}" \
 		"${bold}$main help [command]${normal}" \
-		"${grey} for more information on a command.${normal}\n"
+		"${grey} for more information on a command.${normal}"
 	echo ''
 
 	if [ ! -z "$input" ] && [ "$showall" != '1' ]; then
