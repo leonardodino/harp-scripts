@@ -71,7 +71,7 @@ generalhelp(){
 	echo ''
 	echo "${grey}Commands:${normal}"
 	find "$localdir" -maxdepth 1 -type f -perm -111 ! -name "$main" \
-	| xargs -n 1 -I@ bash -c "hs-show-short-help @ $showall" \
+		| xargs -n 1 -I@ bash -c "hs-show-short-help @ $showall" \
 		| column  -s § -t;
 	echo ''
 	printf '%s%s%s\n' \
