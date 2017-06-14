@@ -53,6 +53,7 @@ $ harp-scripts [command] [argument]
 | **PORT** | Which port to listen on. |
 | **DOMAIN** | Which domain to deploy to. |
 | **HS_NODE_ENV** | NODE_ENV for the harp processor. |
+| **NO_CLEANUP** | Dont remove output folder before compiling. |
 
 
 ## Roadmap: [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](../../pulls)

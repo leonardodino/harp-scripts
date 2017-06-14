@@ -8,11 +8,14 @@ if [ ! -z "$HS_HELP" ]; then
 	[ ! -z "$HS_USAGE_HELP" ] && printf '%s\n' '{COMMAND} [path]' \
 		"compile all project's files to a static website" \
 		'use the argument to set a custom output folder' \
-		'[path] defaults to ./www/' \
+		'[path] defaults to ./www' \
 		'WARNING: the folder will be overwritten';
 
 	[ ! -z "$HS_VARIABLES_HELP" ] && printf '%s\n' \
+		'NO_CLEANUP: explicitly keep old files' \
 		'HS_NODE_ENV: specify NODE_ENV during compilation';
 exit 0; fi;
 
-NODE_ENV="${HS_NODE_ENV:-production}" harp compile "$1"
+outputPath="${1:-./www}"
+[ -z "$NO_CLEANUP" ] && rm -r "$outputPath" 2> /dev/null || true;
+NODE_ENV="${HS_NODE_ENV:-production}" harp compile -o "$outputPath"
