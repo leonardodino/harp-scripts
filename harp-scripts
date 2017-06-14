@@ -1,25 +1,15 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-if [ ! -z "$HS_SHORT_HELP" ]; then
-	echo 'script runner'
-	exit 0
-fi
+if [ ! -z "$HS_HELP" ]; then
+	[ ! -z "$HS_SHORT_HELP" ] && printf '%s\n' \
+		'script runner';
 
-if [ ! -z "$HS_USAGE_HELP" ]; then
-	echo '{COMMAND} help'
-	echo 'see help'
-	exit 0
-fi
+	[ ! -z "$HS_USAGE_HELP" ] && printf '%s\n' '{COMMAND} help' \
+		'see help';
 
-if [ ! -z "$HS_VARIABLES_HELP" ]; then
-	exit 0
-fi
-
-if [ ! -z "$HS_HIDE_HELP" ]; then
-	echo 'true'
-	exit 0
-fi
+	[ ! -z "$HS_HIDE_HELP" ] && printf '%s\n' 'true';
+exit 0; fi;
 
 get-local-dir(){
 	# http://stackoverflow.com/a/246128

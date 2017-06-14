@@ -1,27 +1,15 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-if [ ! -z "$HS_SHORT_HELP" ]; then
-	echo 'show the help section for command'
-	exit 0
-fi
+if [ ! -z "$HS_HELP" ]; then
+	[ ! -z "$HS_SHORT_HELP" ] && printf '%s\n' \
+		'show the help section for command';
 
-if [ ! -z "$HS_USAGE_HELP" ]; then
-	echo '{COMMAND}'
-	echo 'show overview entry for harp-scripts'
-	echo ''
-	echo '{COMMAND} [command]'
-	echo 'show detailed help entry for command'
-	exit 0
-fi
-
-if [ ! -z "$HS_VARIABLES_HELP" ]; then
-	exit 0
-fi
-
-if [ ! -z "$HS_HIDE_HELP" ]; then
-	exit 0
-fi
+	[ ! -z "$HS_USAGE_HELP" ] && printf '%s\n' '{COMMAND}' \
+		'show overview entry for harp-scripts' \
+		'' '{COMMAND} [command]' \
+		'show detailed help entry for command';
+exit 0; fi;
 
 if [ -t 1 ]; then
 	ncolors=$(tput colors)
@@ -50,11 +38,11 @@ get-local-dir(){
 
 hs-show-short-help(){
 	local showall="$2"
-	local cmdhide="$(HS_HIDE_HELP='true' "$1")"
+	local cmdhide="$(HS_HELP='true' HS_HIDE_HELP='true' "$1")"
 
 	if [ ! "$cmdhide" = 'true' ] || [ "$showall" = '1' ]; then
 		local cmdname="$(basename "$1")"
-		local cmdhelp="$(HS_SHORT_HELP='true' "$1")"
+		local cmdhelp="$(HS_HELP='true' HS_SHORT_HELP='true' "$1")"
 		echo "$cmdname § $cmdhelp" | sed 's|^|  |'
 	fi
 }
@@ -83,7 +71,7 @@ generalhelp(){
 	echo ''
 	echo "${grey}Commands:${normal}"
 	find "$localdir" -maxdepth 1 -type f -perm -111 ! -name "$main" \
-		| xargs -n 1 -I@ bash -c "hs-show-short-help @ $showall" \
+	| xargs -n 1 -I@ bash -c "hs-show-short-help @ $showall" \
 		| column  -s § -t;
 	echo ''
 	printf '%s%s%s\n' \
@@ -111,9 +99,9 @@ commandhelp(){
 	local pkg="$(cat "${localdir}/package.json")";
 	local main="$(echo "$pkg" | json bin)";
 
-	local short="$(HS_SHORT_HELP='true' "$script")"
-	local usage="$(HS_USAGE_HELP='true' "$script")"
-	local variables="$(HS_VARIABLES_HELP='true' "$script")"
+	local short="$(HS_HELP='true' HS_SHORT_HELP='true' "$script")"
+	local usage="$(HS_HELP='true' HS_USAGE_HELP='true' "$script")"
+	local variables="$(HS_HELP='true' HS_VARIABLES_HELP='true' "$script")"
 
 	echo ''
 	echo "${bold}$input:${normal} ${short}"

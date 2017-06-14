@@ -1,23 +1,13 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-if [ ! -z "$HS_SHORT_HELP" ]; then
-	echo 'test your project harp compilation'
-	exit 0
-fi
+if [ ! -z "$HS_HELP" ]; then
+	[ ! -z "$HS_SHORT_HELP" ] && printf '%s\n' \
+		'test your project harp compilation'
 
-if [ ! -z "$HS_USAGE_HELP" ]; then
-	exit 0
-fi
-
-if [ ! -z "$HS_VARIABLES_HELP" ]; then
-	echo 'HS_NODE_ENV: specify NODE_ENV during test'
-	exit 0
-fi
-
-if [ ! -z "$HS_HIDE_HELP" ]; then
-	exit 0
-fi
+	[ ! -z "$HS_VARIABLES_HELP" ] && printf '%s\n' \
+		'HS_NODE_ENV: specify NODE_ENV during test';
+exit 0; fi;
 
 FOLDER_PREFIX="$(cat package.json | json name).harp-scripts-test"
 NODE_ENV="${HS_NODE_ENV:-production}" \
