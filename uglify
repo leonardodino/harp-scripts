@@ -44,10 +44,7 @@ uglify(){
 	echo 'Uglify:' 1>&2
 	echo "${files}" | nl -nrz -s': ' -w2 1>&2
 
-	uglifyjs $files \
-	--screw-ie8 \
-	-c "$(get-config)" \
-	-m --passes 10
+	uglifyjs $files -m -c "$(get-config)"
 }
 
 uglify "$@"
