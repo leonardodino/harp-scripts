@@ -8,11 +8,18 @@ if [ ! -z "$HS_HELP" ]; then
 	[ ! -z "$HS_USAGE_HELP" ] && printf '%s\n' '{COMMAND}';
 
 	[ ! -z "$HS_VARIABLES_HELP" ] && printf '%s\n' \
-		'PORT: specify port to listen on';
+		'PORT: specify port to listen on' \
+		'HS_NODE_ENV: specify NODE_ENV for the server';
 exit 0; fi;
 
-browser-sync start \
-	--port "${PORT:-5000}" \
-	--proxy "http://localhost:$((${PORT:-5000}+1))" \
-	--files 'public' & \
-harp server --port "$((${PORT:-5000}+1))"
+main(){
+	local browsersync_port="$1"
+	local harp_port="$2"
+	local node_env="${HS_NODE_ENV:-development}"
+
+	concurrently --kill-others --raw \
+	"\"browser-sync start --port '${browsersync_port}' --proxy 'http://localhost:${harp_port}' --files 'public'\"" \
+	"\"NODE_ENV='$node_env' harp server --port '${harp_port}'\""
+}
+# echo "$PATH"
+main $(get-port 2)

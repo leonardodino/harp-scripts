@@ -15,4 +15,4 @@ if [ ! -z "$HS_HELP" ]; then
 exit 0; fi;
 
 NODE_ENV="${HS_NODE_ENV:-production}" \
-harp server --port "${PORT:-5000}"
+harp server --port "$(get-port)"
