@@ -70,7 +70,7 @@ generalhelp(){
 	echo "$main [command] [argument]" | sed 's|^|  |'
 	echo ''
 	echo "${grey}Commands:${normal}"
-	find "$localdir" -maxdepth 1 -type f -perm -111 ! -name "$main" \
+	find "$localdir" -maxdepth 1 -type f -perm -111 ! -name "$(basename "$main")" \
 		| xargs -n 1 -I@ bash -c "hs-show-short-help @ $showall" \
 		| column  -s § -t;
 	echo ''
