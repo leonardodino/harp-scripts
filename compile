@@ -13,9 +13,9 @@ if [ ! -z "$HS_HELP" ]; then
 
 	[ ! -z "$HS_VARIABLES_HELP" ] && printf '%s\n' \
 		'NO_CLEANUP: explicitly keep old files' \
-		'HS_NODE_ENV: specify NODE_ENV during compilation';
+		'NODE_ENV: specify node enviroment during compilation';
 exit 0; fi;
 
 outputPath="${1:-./www}"
 [ -z "$NO_CLEANUP" ] && rm -r "$outputPath" 2> /dev/null || true;
-NODE_ENV="${HS_NODE_ENV:-production}" harp compile -o "$outputPath"
+NODE_ENV="${NODE_ENV:-production}" harp compile -o "$outputPath"

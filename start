@@ -11,8 +11,7 @@ if [ ! -z "$HS_HELP" ]; then
 
 	[ ! -z "$HS_VARIABLES_HELP" ] && printf '%s\n' \
 		'PORT: specify port to listen on' \
-		'HS_NODE_ENV: specify NODE_ENV for the server';
+		'NODE_ENV: specify node enviroment for the server';
 exit 0; fi;
 
-NODE_ENV="${HS_NODE_ENV:-production}" \
-harp server --port "$(get-port)"
+NODE_ENV="${NODE_ENV:-production}" harp server --port "$(get-port)"

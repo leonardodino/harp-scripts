@@ -9,13 +9,13 @@ if [ ! -z "$HS_HELP" ]; then
 
 	[ ! -z "$HS_VARIABLES_HELP" ] && printf '%s\n' \
 		'PORT: specify port to listen on' \
-		'HS_NODE_ENV: specify NODE_ENV for the server';
+		'NODE_ENV: specify node enviroment for the server';
 exit 0; fi;
 
 main(){
 	local browsersync_port="$1"
 	local harp_port="$2"
-	local node_env="${HS_NODE_ENV:-development}"
+	local node_env="${NODE_ENV:-development}"
 
 	trap 'echo ""; exit 0' SIGINT # ctrl+c
 

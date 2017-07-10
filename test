@@ -6,9 +6,8 @@ if [ ! -z "$HS_HELP" ]; then
 		'test your project harp compilation'
 
 	[ ! -z "$HS_VARIABLES_HELP" ] && printf '%s\n' \
-		'HS_NODE_ENV: specify NODE_ENV during test';
+		'NODE_ENV: specify node enviroment during test';
 exit 0; fi;
 
 FOLDER_PREFIX="$(cat package.json | json name).harp-scripts-test"
-NODE_ENV="${HS_NODE_ENV:-production}" \
-harp compile -o "$(mktemp -dt "$FOLDER_PREFIX")"
+NODE_ENV="${NODE_ENV:-production}" harp compile -o "$(mktemp -dt "$FOLDER_PREFIX")"
