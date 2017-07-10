@@ -27,7 +27,7 @@ harp-scripts(){
 	local localdir="$(get-local-dir)"
 	local input="${1}"
 	local script="${localdir}/${input}";
-	local localbin="${localdir}/node_modules/.bin:${localdir}/../.bin"
+	local localbin="${localdir}:${localdir}/node_modules/harp-scripts:${localdir}/node_modules/.bin:${localdir}/../.bin"
 
 	if [ -x "$script" ] && [ -f "$script" ]; then
 		shift;
