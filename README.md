@@ -15,7 +15,7 @@ Useful for `hotsites`, `rapid web prototyping` & `static site management`.
 ## Dependencies
 | Dependency | Minimum Version |
 | --- | --- |
-| `node` | `v4` |
+| `node` | `v6` |
 | `bash` | `v3`* |
 
 `*` Built-in on MacOS & Modern Linux.
