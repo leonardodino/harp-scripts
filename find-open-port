@@ -1,0 +1,24 @@
+#!/usr/bin/env node
+
+const http = require('http')
+const cli = require('./lib/cli')(require.main === module)
+const help = require('./lib/help')(require.main === module)
+
+help({
+	short: 'find bindable tcp ports',
+	usage: [
+		'{COMMAND} [quantity]',
+		'',
+		'outputs port number to STDOUT, one in each line',
+	],
+	hide: true,
+})
+
+const findOneOpenPort = () => new Promise((resolve) => {
+	const server = http.createServer((req, res) => res.end())
+	server.listen(() => (resolve(server.address().port), server.close()))
+})
+
+const findOpenPorts = (length = 1) => Promise.all(Array.from({length}, findOneOpenPort))
+
+module.exports = cli(findOpenPorts)

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+if [ ! -z "$HS_HELP" ]; then
+	[ ! -z "$HS_SHORT_HELP" ] && printf '%s\n' \
+		'get ports from configuration';
+
+	[ ! -z "$HS_USAGE_HELP" ] && printf '%s\n' '{COMMAND} [quantity]' \
+		"print ports to stdout";
+
+	[ ! -z "$HS_VARIABLES_HELP" ] && printf '%s\n' \
+		'PORT: specify port to listen on, use 0 for auto-binding';
+
+	[ ! -z "$HS_HIDE_HELP" ] && printf '%s\n' 'true';
+exit 0; fi;
+
+get-port(){
+	local input="$PORT"
+	local quantity="${1:-1}"
+
+	if [ ! "$input" ]; then
+		echo 'GET-PORT: no declared $PORT, defaulting to 5000' 1>&2
+		PORT=5000 get-port "${quantity}"
+	elif [ "$input" = "auto" ] || [ "$input" -eq 0 ]; then
+		echo "$(find-open-port "${quantity}")"
+	elif [ "$input" -gt 0 ]; then
+		seq "$input" "$((${input}+$((${quantity}-1))))"
+	else
+		echo "GET-PORT: invalid \$PORT value: \"${input}\"" 1>&2
+		exit 1
+	fi
+}
+
+get-port "$1"
