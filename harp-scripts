@@ -31,7 +31,7 @@ harp-scripts(){
 
 	if [ -x "$script" ] && [ -f "$script" ]; then
 		shift;
-		PATH="${localbin}:${PATH}" "$script" "$@";
+		HS_BINARY="$0" PATH="${localbin}:${PATH}" "$script" "$@";
 	elif [ "$input" = '-h' ] || [ "$input" = '--help' ]; then
 		shift;
 		"$0" 'help' "$@"

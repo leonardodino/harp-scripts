@@ -54,7 +54,7 @@ generalhelp(){
 	local input="$2"
 
 	local pkg="$(cat "${localdir}/package.json")";
-	local main="$(echo "$pkg" | json bin)";
+	local main="$HS_BINARY";
 	local pkgname="$(echo "$pkg" | json name)"
 	local pkgversion="$(echo "$pkg" | json version)"
 	local pkgdescription="$(echo "$pkg" | json description)"
@@ -97,7 +97,7 @@ commandhelp(){
 
 	local script="${localdir}/${input}";
 	local pkg="$(cat "${localdir}/package.json")";
-	local main="$(echo "$pkg" | json bin)";
+	local main="$HS_BINARY";
 
 	local short="$(HS_HELP='true' HS_SHORT_HELP='true' "$script")"
 	local usage="$(HS_HELP='true' HS_USAGE_HELP='true' "$script")"
@@ -129,7 +129,7 @@ help(){
 	local script="${localdir}/${input}";
 
 	if [ -x "$script" ] && [ -f "$script" ]; then
-		commandhelp "$localdir" "$input" 
+		commandhelp "$localdir" "$input"
 	else
 		generalhelp "$localdir" "$input"
 	fi
