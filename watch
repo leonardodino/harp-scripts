@@ -17,9 +17,11 @@ main(){
 	local harp_port="$2"
 	local node_env="${HS_NODE_ENV:-development}"
 
+	trap 'echo ""; exit 0' SIGINT # ctrl+c
+
 	concurrently --kill-others --raw \
 	"\"browser-sync start --port '${browsersync_port}' --proxy 'http://localhost:${harp_port}' --files 'public'\"" \
 	"\"NODE_ENV='$node_env' harp server --port '${harp_port}'\""
 }
-# echo "$PATH"
+
 main $(get-port 2)
