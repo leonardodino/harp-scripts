@@ -1,0 +1,174 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+if [ ! -z "$HS_HELP" ]; then
+	[ ! -z "$HS_SHORT_HELP" ] && printf '%s\n' \
+		'create new harp-scripts project';
+
+	[ ! -z "$HS_USAGE_HELP" ] && printf '%s\n' '{COMMAND} <path>' \
+		'create new project folder in path' \
+		'<path> name of the project folder' \
+		'WARNING: the folder must not exist';
+exit 0; fi;
+
+
+# ARGUMENT CHECK
+if ([ ! -z "$2" ] || [ -z "$1" ]); then
+	echo 'InputError: wrong number of arguments.' 1>&2
+	[ ! -z "$2" ] && echo 'this command accepts only one argument.' 1>&2
+	[ -z "$1" ] && echo 'Missing required <path> argument.' 1>&2
+exit 1; fi;
+
+# DEPENDENCY CHECK
+if ! (hash git 2> /dev/null); then
+	echo 'Error: "git" could not be found in PATH,' 1>&2
+	echo 'please make sure "git" is installed before proceding.' 1>&2
+exit 1; fi;
+
+finish(){
+	exitcode=$?
+	popd > /dev/null
+	exit $exitcode
+}
+
+define(){
+	IFS='\n' read -r -d '' ${1} || true
+}
+
+projectFolder="$1"
+npm_packages='harp harp-scripts'
+
+if ([ -f "$projectFolder" ] || [ -d "$projectFolder" ]); then
+	echo "Error: make sure destination \"${projectFolder}\" doesn't already exists." 1>&2
+exit 1; fi;
+
+trap finish SIGINT # ctrl+c
+trap finish EXIT
+
+mkdir -p "$projectFolder" "${projectFolder}/public"
+pushd "$projectFolder" > /dev/null
+
+# INSTALL PACKAGES
+if (hash yarn 2> /dev/null); then
+	yarn init --silent --yes 2> /dev/null && \
+	yarn add --silent --production --prefer-offline $npm_packages
+elif (hash npm 2> /dev/null); then
+	npm init --yes > /dev/null && \
+	npm i --save --silent --production $npm_packages > /dev/null
+else
+	echo 'Error: this command requires yarn or npm to be installed.' 1>&2
+	exit 1
+fi
+
+# FILE CONTENTS
+define npm_scripts <<'EOF'
+{"scripts": {
+	"start": "harp-scripts start",
+	"dev": "harp-scripts watch",
+	"test": "harp-scripts test",
+	"compile": "harp-scripts compile"
+}}
+EOF
+
+git_author="$(printf '%s %s' "$(git config user.name)" "<$(git config user.email)>")"
+
+if [ "$git_author" = ' <>' ]; then
+	echo 'Error: No git user configured.' 1>&2
+	echo 'Please follow these instructions before proceding:' 1>&2
+	echo 'https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup#_your_identity' 1>&2
+exit 1; fi;
+
+npm_author="{\"author\": \"${git_author}\"}"
+
+define reset_stylesheet <<'EOF'
+html
+	box-sizing border-box
+	font-size 16px
+
+*, *:before, *:after
+	box-sizing inherit
+
+body, h1, h2, h3, h4, h5, h6, p, ol, ul
+	margin 0
+	padding 0
+	font-weight normal
+
+ol, ul
+	list-style none
+
+img
+	max-width 100%
+	height auto
+EOF
+
+define stylesheet <<'EOF'
+@import '_reset'
+
+body
+	font-family sans-serif
+EOF
+
+define underscore_layout <<'EOF'
+doctype html
+html
+	head
+		link(rel='stylesheet' href='/main.css')
+	body
+		!=yield
+EOF
+
+define gitignore <<'EOF'
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.lnk
+
+# node
+node_modules
+*.log
+
+# harp
+www
+EOF
+
+define editorconfig <<'EOF'
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = tab
+indent_size = 2
+charset = utf-8
+
+[{*.json,*.yml,*.md,yarn.lock,.*}]
+indent_style = space
+indent_size = 2
+EOF
+
+# WRITE FILES
+echo "$gitignore" > .gitignore
+echo "$editorconfig" > .editorconfig
+echo '{}' > harp.json
+echo 'h1 it works!' > public/index.jade
+echo 'h1 404' > public/404.jade
+echo "$underscore_layout" > public/_layout.jade
+echo "$reset_stylesheet" > public/_reset.styl
+echo "$stylesheet" > public/main.styl
+printf '%s\n' "$(cat "package.json")" "$npm_author" "$npm_scripts" | json --merge > _package.json
+mv _package.json package.json
+
+# GIT
+git init -q && \
+git add -A && \
+git commit -q \
+-m 'Initial Commit' \
+-m 'created with [harp-scripts](https://github.com/leonardodino/harp-scripts)'
+
+# SUCCESS
+# [TODO]: add success message.
