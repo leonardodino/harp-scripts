@@ -25,6 +25,22 @@ if ! (hash git 2> /dev/null); then
 	echo 'please make sure "git" is installed before proceding.' 1>&2
 exit 1; fi;
 
+has-user-config(){
+	git config --get "user.${1}" > /dev/null 2> /dev/null
+}
+
+# GIT USER CHECK
+if ! (has-user-config 'name' && has-user-config 'email'); then
+	echo 'Error: "git" user configuration not set' 1>&2
+	echo '' 1>&2
+	echo 'Please configure git with your credentials:' 1>&2
+	echo '$ git config --global user.name "John Doe"' 1>&2
+	echo '$ git config --global user.email johndoe@example.com' 1>&2
+	echo '' 1>&2
+	echo 'For more info see:' 1>&2
+	echo 'https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup' 1>&2
+exit 1; fi;
+
 finish(){
 	exitcode=$?
 	popd > /dev/null
