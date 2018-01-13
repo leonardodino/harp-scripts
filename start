@@ -14,4 +14,4 @@ if [ ! -z "$HS_HELP" ]; then
 		'NODE_ENV: specify node enviroment for the server';
 exit 0; fi;
 
-NODE_ENV="${NODE_ENV:-production}" harp server --port "$(get-port)"
+URL="$(get-url)" NODE_ENV="${NODE_ENV:-production}" harp server --port "$(get-port)"

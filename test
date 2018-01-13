@@ -10,4 +10,4 @@ if [ ! -z "$HS_HELP" ]; then
 exit 0; fi;
 
 FOLDER_PREFIX="$(cat package.json | json name).harp-scripts-test"
-NODE_ENV="${NODE_ENV:-production}" harp compile -o "$(mktemp -dt "$FOLDER_PREFIX")"
+URL="$(get-url)" NODE_ENV="${NODE_ENV:-production}" harp compile -o "$(mktemp -dt "$FOLDER_PREFIX")"

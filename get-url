@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+if [ ! -z "$HS_HELP" ]; then
+	[ ! -z "$HS_SHORT_HELP" ] && printf '%s\n' \
+		'get url from environment';
+
+	[ ! -z "$HS_USAGE_HELP" ] && printf '%s\n' '{COMMAND} [quantity]' \
+		"print url to stdout";
+
+	[ ! -z "$HS_VARIABLES_HELP" ] && printf '%s\n' \
+		'PUBLIC_URL: specify URL environment';
+
+	[ ! -z "$HS_HIDE_HELP" ] && printf '%s\n' 'true';
+exit 0; fi;
+
+get-url(){
+	local url
+	local src
+	[ -z "$url" ] && url="$PUBLIC_URL" src='PUBLIC_URL'
+	[ -z "$url" ] && url="$URL" src='$URL'
+	[ -z "$url" ] && url="$DEPLOY_URL" src='$DEPLOY_URL'
+	[ -z "$url" ] && url="$(cat "package.json" | json homepage)" src='package.homepage'
+
+	if [ -z "$url" ]; then
+		echo 'GET-URL: ERROR! no declared URL' 1>&2
+		echo 'please specify homepage in package.json' 1>&2
+		exit 1
+	fi
+
+	echo "GET-URL: ${url} [${src}]" 1>&2
+	echo "$url"
+}
+
+get-url

@@ -15,13 +15,14 @@ exit 0; fi;
 main(){
 	local browsersync_port="$1"
 	local harp_port="$2"
+	local url="$3"
 	local node_env="${NODE_ENV:-development}"
 
 	trap 'echo ""; exit 0' SIGINT # ctrl+c
 
 	concurrently --kill-others --raw \
 	"\"browser-sync start --port '${browsersync_port}' --proxy 'http://localhost:${harp_port}' --files 'public'\"" \
-	"\"NODE_ENV='$node_env' harp server --port '${harp_port}'\""
+	"\"NODE_ENV='$node_env' URL='${url}' harp server --port '${harp_port}'\""
 }
 
-main $(get-port 2)
+main $(get-port 2) "$(get-url)"

@@ -16,7 +16,7 @@ defaultfolder='./www'
 folder="${1:-$defaultfolder}"
 
 fallbackdomain="$(cat package.json | json name).surge.sh"
-homepage="$(cat package.json | json homepage)"
+homepage="$(get-url 2> /dev/null)"
 domain="${DOMAIN:-${homepage:-$fallbackdomain}}"
 
 surge "$folder" "$domain"
